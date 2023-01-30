@@ -1,12 +1,14 @@
 package org.example.api;
 
 import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
 import org.example.models.UserModel;
+import org.example.service.UserGenerator;
 
-import static org.example.constants.ConstantEndpoints.CREATE_USER_API;
-import static org.example.constants.ConstantEndpoints.USER_API;
+import static io.restassured.RestAssured.given;
+import static org.example.constants.ConstantEndpoints.*;
 
-public class CreateUser extends BaseRest {
+public class UserRestClient extends BaseRest {
 
     public Response createUser(UserModel createUser) {
         Response response = jsonRequest()
@@ -26,5 +28,20 @@ public class CreateUser extends BaseRest {
                 .header("Authorization", accessToken)
                 .when()
                 .delete(USER_API);
+    }
+
+    public Response login(UserModel userModel) {
+        return jsonRequest()
+                .body(userModel)
+                .when()
+                .post(LOGIN_USER_API);
+    }
+
+    public Response updateUser(UserModel userModel, String accessToken) {
+        return jsonRequest()
+                .header("Authorization", accessToken)
+                .body(userModel)
+                .when()
+                .patch(USER_API);
     }
 }

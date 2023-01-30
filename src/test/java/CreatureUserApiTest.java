@@ -1,4 +1,4 @@
-import org.example.api.CreateUser;
+import org.example.api.UserRestClient;
 import io.qameta.allure.junit4.DisplayName;
 import org.example.models.UserModel;
 import org.example.service.UserGenerator;
@@ -12,19 +12,19 @@ import static org.hamcrest.Matchers.equalTo;
 //    создать пользователя и не заполнить одно из обязательных полей.
 
 public class CreatureUserApiTest {
-    CreateUser createUser;
+    UserRestClient userRestClient;
     UserModel userModel;
     String userAccessToken;
 
     public CreatureUserApiTest() {
-        createUser = new CreateUser();
+        userRestClient = new UserRestClient();
         userModel = UserGenerator.getRandomUser();
     }
 
     @Test
     @DisplayName("Проверка создания курьера.Позитивный кейс")
     public void toCreateUserValidTest() {
-        userAccessToken = createUser.createUser(userModel)
+        userAccessToken = userRestClient.createUser(userModel)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -35,13 +35,13 @@ public class CreatureUserApiTest {
     @Test
     @DisplayName("Проверка создания одинаковых Пользователей")
     public void createDoubleUserTest() {
-        userAccessToken = createUser.createUser(userModel)
+        userAccessToken = userRestClient.createUser(userModel)
                 .then()
                 .statusCode(200)
                 .extract()
                 .path("accessToken");
 
-        createUser.createUser(userModel)
+        userRestClient.createUser(userModel)
                 .then()
                 .statusCode(403);
     }
@@ -51,7 +51,7 @@ public class CreatureUserApiTest {
     public void toCreateUserNoEmail() {
         UserModel newUser = new UserModel("", userModel.getPassword(), userModel.getName());
 
-        userAccessToken = createUser.createUser(newUser)
+        userAccessToken = userRestClient.createUser(newUser)
                 .then()
                 .statusCode(403)
                 .and()
@@ -66,7 +66,7 @@ public class CreatureUserApiTest {
     public void toCreateUserNoPassword() {
         UserModel newUser = new UserModel(userModel.getEmail(), "", userModel.getName());
 
-        userAccessToken = createUser.createUser(newUser)
+        userAccessToken = userRestClient.createUser(newUser)
                 .then()
                 .statusCode(403)
                 .and()
@@ -81,7 +81,7 @@ public class CreatureUserApiTest {
     public void toCreateUserNoName() {
         UserModel newUser = new UserModel(userModel.getEmail(), userModel.getPassword(), "");
 
-        userAccessToken = createUser.createUser(newUser)
+        userAccessToken = userRestClient.createUser(newUser)
                 .then()
                 .statusCode(403)
                 .and()
@@ -96,7 +96,7 @@ public class CreatureUserApiTest {
     public void toCreateUserNoEmpty() {
         UserModel newUser = new UserModel("", "", "");
 
-        userAccessToken = createUser.createUser(newUser)
+        userAccessToken = userRestClient.createUser(newUser)
                 .then()
                 .statusCode(403)
                 .and()
@@ -109,7 +109,7 @@ public class CreatureUserApiTest {
     @After
     public void deleteCourier() {
         if (userAccessToken != null) {
-            createUser.deleteUser(userAccessToken)
+            userRestClient.deleteUser(userAccessToken)
                     .then()
                     .statusCode(202);
         }
