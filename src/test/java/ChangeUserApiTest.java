@@ -1,7 +1,8 @@
 import io.qameta.allure.junit4.DisplayName;
+import org.apache.commons.httpclient.HttpStatus;
 import org.example.api.UserRestClient;
 import org.example.models.UserModel;
-import org.example.service.UserGenerator;
+import org.example.service.UserGeneratorService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,15 +10,16 @@ import org.junit.Test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-
 public class ChangeUserApiTest {
+    UserGeneratorService userGenerator;
     UserRestClient userRestClient;
     UserModel userModel;
     String userAccessToken;
 
     public ChangeUserApiTest() {
+        userGenerator = new UserGeneratorService();
+        userModel = userGenerator.getRandomUser();
         userRestClient = new UserRestClient();
-        userModel = UserGenerator.getRandomUser();
     }
 
     @Before
@@ -32,13 +34,13 @@ public class ChangeUserApiTest {
     @Test
     @DisplayName("Изменение E-mail. Пользователь авторизован")
     public void changeEmailAuthorizationTrue() {
-        String email = UserGenerator.generateEmail();
+        String email = userGenerator.generateEmail();
         userModel.setEmail(email);
 
         Boolean messageChangeEmail = userRestClient
                 .updateUser(userModel, userAccessToken)
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.SC_OK)
                 .extract()
                 .path("success");
 
@@ -48,13 +50,13 @@ public class ChangeUserApiTest {
     @Test
     @DisplayName("Изменение Password. Пользователь авторизован")
     public void changePasswordAuthorizationTrue() {
-        String password = UserGenerator.generatePassword();
+        String password = userGenerator.generatePassword();
         userModel.setPassword(password);
 
         Boolean messageChangePassword = userRestClient
                 .updateUser(userModel, userAccessToken)
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.SC_OK)
                 .extract()
                 .path("success");
 
@@ -64,13 +66,13 @@ public class ChangeUserApiTest {
     @Test
     @DisplayName("Изменение Name. Пользователь авторизован")
     public void changeNameAuthorizationTrue() {
-        String name = UserGenerator.generateName();
+        String name = userGenerator.generateName();
         userModel.setPassword(name);
 
         Boolean messageChangeName = userRestClient
                 .updateUser(userModel, userAccessToken)
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.SC_OK)
                 .extract()
                 .path("success");
 
@@ -80,13 +82,13 @@ public class ChangeUserApiTest {
     @Test
     @DisplayName("Изменение E-mail. Пользователь  не авторизован")
     public void changeEmailAuthorizationFalse() {
-        String email = UserGenerator.generateEmail();
+        String email = userGenerator.generateEmail();
         userModel.setEmail(email);
 
         Boolean messageChangeEmail = userRestClient
-                .updateUser(userModel, "")
+                .updateUser(userModel, "") // указываем пустой токен
                 .then()
-                .statusCode(401)
+                .statusCode(HttpStatus.SC_UNAUTHORIZED)
                 .extract()
                 .path("success");
 
@@ -96,13 +98,13 @@ public class ChangeUserApiTest {
     @Test
     @DisplayName("Изменение Password. Пользователь не авторизован")
     public void changePasswordAuthorizationFalse() {
-        String password = UserGenerator.generatePassword();
+        String password = userGenerator.generatePassword();
         userModel.setPassword(password);
 
         Boolean messageChangePassword = userRestClient
                 .updateUser(userModel, "")
                 .then()
-                .statusCode(401)
+                .statusCode(HttpStatus.SC_UNAUTHORIZED)
                 .extract()
                 .path("success");
 
@@ -112,13 +114,13 @@ public class ChangeUserApiTest {
     @Test
     @DisplayName("Изменение Name. Пользователь не авторизован")
     public void changeNameAuthorizationFalse() {
-        String name = UserGenerator.generateName();
+        String name = userGenerator.generateName();
         userModel.setName(name);
 
         Boolean messageChangeName = userRestClient
                 .updateUser(userModel, "")
                 .then()
-                .statusCode(401)
+                .statusCode(HttpStatus.SC_UNAUTHORIZED)
                 .extract()
                 .path("success");
 
@@ -130,7 +132,7 @@ public class ChangeUserApiTest {
         if (userAccessToken != null) {
             userRestClient.deleteUser(userAccessToken)
                     .then()
-                    .statusCode(202);
+                    .statusCode(HttpStatus.SC_ACCEPTED);
         }
     }
 }

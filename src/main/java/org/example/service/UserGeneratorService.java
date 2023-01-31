@@ -3,9 +3,14 @@ package org.example.service;
 import com.github.javafaker.Faker;
 import org.example.models.UserModel;
 
-public class UserGenerator {
-    public static UserModel getRandomUser() {
-        Faker faker = new Faker();
+public class UserGeneratorService {
+    Faker faker;
+
+    public UserGeneratorService() {
+        faker = new Faker();
+    }
+
+    public UserModel getRandomUser() {
         return new UserModel(
                 faker.internet().emailAddress(),
                 faker.internet().password(),
@@ -13,18 +18,15 @@ public class UserGenerator {
         );
     }
 
-    public static String generateEmail() {
-        Faker faker = new Faker();
+    public String generateEmail() {
         return faker.internet().emailAddress();
     }
 
-    public static String generatePassword() {
-        Faker faker = new Faker();
+    public String generatePassword() {
         return faker.internet().password();
     }
 
-    public static String generateName() {
-        Faker faker = new Faker();
+    public String generateName() {
         return faker.name().name();
     }
 }

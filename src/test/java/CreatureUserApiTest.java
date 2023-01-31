@@ -1,15 +1,12 @@
+import org.apache.commons.httpclient.HttpStatus;
 import org.example.api.UserRestClient;
 import io.qameta.allure.junit4.DisplayName;
 import org.example.models.UserModel;
-import org.example.service.UserGenerator;
+import org.example.service.UserGeneratorService;
 import org.junit.After;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.equalTo;
-
-//    создать уникального пользователя;
-//    создать пользователя, который уже зарегистрирован;
-//    создать пользователя и не заполнить одно из обязательных полей.
 
 public class CreatureUserApiTest {
     UserRestClient userRestClient;
@@ -17,8 +14,8 @@ public class CreatureUserApiTest {
     String userAccessToken;
 
     public CreatureUserApiTest() {
+        userModel = (new UserGeneratorService()).getRandomUser();
         userRestClient = new UserRestClient();
-        userModel = UserGenerator.getRandomUser();
     }
 
     @Test
@@ -26,24 +23,23 @@ public class CreatureUserApiTest {
     public void toCreateUserValidTest() {
         userAccessToken = userRestClient.createUser(userModel)
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.SC_OK)
                 .extract()
                 .path("accessToken");
     }
 
-    //    Создание пользователя с такими же данныеми
     @Test
     @DisplayName("Проверка создания одинаковых Пользователей")
     public void createDoubleUserTest() {
         userAccessToken = userRestClient.createUser(userModel)
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.SC_OK)
                 .extract()
                 .path("accessToken");
 
         userRestClient.createUser(userModel)
                 .then()
-                .statusCode(403);
+                .statusCode(HttpStatus.SC_FORBIDDEN);
     }
 
     @Test
@@ -53,7 +49,7 @@ public class CreatureUserApiTest {
 
         userAccessToken = userRestClient.createUser(newUser)
                 .then()
-                .statusCode(403)
+                .statusCode(HttpStatus.SC_FORBIDDEN)
                 .and()
                 .assertThat()
                 .body("message", equalTo("Email, password and name are required fields"))
@@ -68,7 +64,7 @@ public class CreatureUserApiTest {
 
         userAccessToken = userRestClient.createUser(newUser)
                 .then()
-                .statusCode(403)
+                .statusCode(HttpStatus.SC_FORBIDDEN)
                 .and()
                 .assertThat()
                 .body("message", equalTo("Email, password and name are required fields"))
@@ -83,7 +79,7 @@ public class CreatureUserApiTest {
 
         userAccessToken = userRestClient.createUser(newUser)
                 .then()
-                .statusCode(403)
+                .statusCode(HttpStatus.SC_FORBIDDEN)
                 .and()
                 .assertThat()
                 .body("message", equalTo("Email, password and name are required fields"))
@@ -98,7 +94,7 @@ public class CreatureUserApiTest {
 
         userAccessToken = userRestClient.createUser(newUser)
                 .then()
-                .statusCode(403)
+                .statusCode(HttpStatus.SC_FORBIDDEN)
                 .and()
                 .assertThat()
                 .body("message", equalTo("Email, password and name are required fields"))
@@ -111,7 +107,7 @@ public class CreatureUserApiTest {
         if (userAccessToken != null) {
             userRestClient.deleteUser(userAccessToken)
                     .then()
-                    .statusCode(202);
+                    .statusCode(HttpStatus.SC_ACCEPTED);
         }
     }
 }

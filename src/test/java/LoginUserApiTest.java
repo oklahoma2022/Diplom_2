@@ -1,8 +1,9 @@
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.apache.commons.httpclient.HttpStatus;
 import org.example.api.UserRestClient;
 import org.example.models.UserModel;
-import org.example.service.UserGenerator;
+import org.example.service.UserGeneratorService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,12 +14,11 @@ import static org.hamcrest.Matchers.*;
 public class LoginUserApiTest {
     UserRestClient userRestClient;
     UserModel userModel;
-
     String userAccessToken;
 
     public LoginUserApiTest() {
+        userModel = (new UserGeneratorService()).getRandomUser();
         userRestClient = new UserRestClient();
-        userModel = UserGenerator.getRandomUser();
     }
 
     //Создаем курьера , которого будем авторизовывать
@@ -34,10 +34,11 @@ public class LoginUserApiTest {
         userAccessToken = response
                 .then()
                 .assertThat()
-                .statusCode(200)
+                .statusCode(HttpStatus.SC_OK)
                 .and()
                 .extract()
                 .path("accessToken");
+
         assertThat(userAccessToken, notNullValue());
     }
 
@@ -49,12 +50,12 @@ public class LoginUserApiTest {
         String massageEmailNotValid = response
                 .then()
                 .assertThat()
-                .statusCode(401)
+                .statusCode(HttpStatus.SC_UNAUTHORIZED)
                 .and()
                 .extract()
                 .path("message");
-        assertThat(massageEmailNotValid, equalTo("email or password are incorrect"));
 
+        assertThat(massageEmailNotValid, equalTo("email or password are incorrect"));
     }
 
     @Test
@@ -65,10 +66,11 @@ public class LoginUserApiTest {
         String massagePasswordNotValid = response
                 .then()
                 .assertThat()
-                .statusCode(401)
+                .statusCode(HttpStatus.SC_UNAUTHORIZED)
                 .and()
                 .extract()
                 .path("message");
+
         assertThat(massagePasswordNotValid, equalTo("email or password are incorrect"));
     }
 
@@ -81,10 +83,11 @@ public class LoginUserApiTest {
         String messageEmptyFields = response
                 .then()
                 .assertThat()
-                .statusCode(401)
+                .statusCode(HttpStatus.SC_UNAUTHORIZED)
                 .and()
                 .extract()
                 .path("message");
+
         assertThat(messageEmptyFields, equalTo("email or password are incorrect"));
     }
 
@@ -93,7 +96,7 @@ public class LoginUserApiTest {
         if (userAccessToken != null) {
             userRestClient.deleteUser(userAccessToken)
                     .then()
-                    .statusCode(202);
+                    .statusCode(HttpStatus.SC_ACCEPTED);
         }
     }
 }

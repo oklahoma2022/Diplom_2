@@ -1,7 +1,6 @@
 package org.example.models;
 
 public class UserModel {
-    // Работа с JSON как с объектом  через отедльный класс
     private String email;
     private String password;
     private String name;
@@ -11,13 +10,10 @@ public class UserModel {
      this.password = password;
      this.name = name;
  }
- // пустой класс для ресташура
+
     public UserModel() {
 
     }
-
-
-    // создаю геттеры и сетеры для удобства обращения
 
     public String getEmail() {
         return email;

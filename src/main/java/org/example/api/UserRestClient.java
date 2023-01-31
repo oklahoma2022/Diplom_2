@@ -1,14 +1,18 @@
 package org.example.api;
 
 import io.restassured.response.Response;
-import io.restassured.response.ValidatableResponse;
 import org.example.models.UserModel;
-import org.example.service.UserGenerator;
+import org.example.service.StatusHandlerService;
 
-import static io.restassured.RestAssured.given;
 import static org.example.constants.ConstantEndpoints.*;
 
 public class UserRestClient extends BaseRest {
+
+    StatusHandlerService statusService;
+
+    public UserRestClient() {
+        statusService = new StatusHandlerService();
+    }
 
     public Response createUser(UserModel createUser) {
         Response response = jsonRequest()
@@ -16,32 +20,34 @@ public class UserRestClient extends BaseRest {
                 .when()
                 .post(CREATE_USER_API);
 
-        if (response.getStatusCode() == 429) {
-            throw new RuntimeException("Превышено количество запросов");
-        }
-
-        return response;
+        return statusService.checkStatusCode(response);
     }
 
     public Response deleteUser(String accessToken) {
-        return jsonRequest()
+        Response response = jsonRequest()
                 .header("Authorization", accessToken)
                 .when()
                 .delete(USER_API);
+
+        return statusService.checkStatusCode(response);
     }
 
     public Response login(UserModel userModel) {
-        return jsonRequest()
+        Response response = jsonRequest()
                 .body(userModel)
                 .when()
                 .post(LOGIN_USER_API);
+
+        return statusService.checkStatusCode(response);
     }
 
     public Response updateUser(UserModel userModel, String accessToken) {
-        return jsonRequest()
+        Response response = jsonRequest()
                 .header("Authorization", accessToken)
                 .body(userModel)
                 .when()
                 .patch(USER_API);
+
+        return statusService.checkStatusCode(response);
     }
 }
